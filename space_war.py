@@ -26,6 +26,7 @@ class Monster(turtle.Turtle):
     # self is the current Monster object
     def move(self):
         self.fd(self.speed)
+
         # Only inside boundary
         # width of screen 700, border from -300 to 300
         if self.xcor() > 290:
@@ -72,6 +73,35 @@ class Player(Monster):
         self.speed -= 1
 
 
+# weapon player can use to kill the enemy
+class Weapon(Monster):
+    def __init__(self, monster_shape, color, init_x, init_y):
+        Monster.__init__(self, monster_shape, color, init_x, init_y)
+        self.speed = 25
+        self.status = "ready"
+        self.shapesize(0.5, 0.5, None)
+        self.setpos(-20000, -20000)
+
+    def fire(self):
+        if self.status == "ready":
+            # when fire, set pos and dir of weapon to player's
+            self.goto(player.xcor(), player.ycor())
+            self.setheading(player.heading())
+            self.status = "fire"
+
+    def move(self):
+        if self.status == "fire":
+            self.fd(self.speed)
+        if self.status == "ready":
+            self.setpos(-1000, 1000)
+        # Only inside boundary
+        # width of screen 700, border from -300 to 300
+        if self.xcor() > 290 or self.xcor() < -290 or \
+                self.ycor() > 290 or self.ycor() < -290:
+            self.status = "ready"
+            self.setpos(-1000, 1000)
+
+
 # probably need a better name
 class BadMonster(Monster):
     def __init__(self, monster_shape, color, init_x, init_y):
@@ -109,6 +139,8 @@ game.draw_border()
 
 # Create my Player
 player = Player("triangle", "red", 0, 0)
+# Create weapon for player
+weapon = Weapon("circle", "yellow", 0, 0)
 
 # Create my Bad Monster
 bm = BadMonster("square", "green", -100, 200)
@@ -119,6 +151,8 @@ turtle.onkey(player.turn_left, "Left")
 turtle.onkey(player.turn_right, "Right")
 turtle.onkey(player.speed_up, "Up")
 turtle.onkey(player.slow_down, "Down")
+# Surprisingly, space is lower case
+turtle.onkey(weapon.fire, "space")
 # after create binding, we need to tell turtle to listen
 turtle.listen()
 
@@ -127,10 +161,18 @@ while True:
     # Player is a child of Monster, so player can move
     player.move()
     bm.move()
+    weapon.move()
 
-    # check collision
+    # check if player touched enemy
     if (player.touch(bm)):
-        bm.setpos(random.randint(0,300), random.randint(0,300))
+        bm.setpos(random.randint(0, 300), random.randint(0, 300))
+
+    # check if weapon hit enemy
+    if (weapon.touch(bm)):
+        bm.setpos(random.randint(0, 300), random.randint(0, 300))
+        weapon.status = "ready"
+        game.score += 1
+
 
 # show until user press enter
 delay = input("Press enter to quit")
