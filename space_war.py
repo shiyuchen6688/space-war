@@ -2,7 +2,6 @@ import turtle
 import os
 import random
 
-
 turtle.fd(0)
 # no animation, just draw it immediatly
 turtle.speed(0)
@@ -11,6 +10,7 @@ turtle.bgcolor("black")
 turtle.ht()
 turtle.setundobuffer(1)
 turtle.tracer(1)
+
 
 # Monster class
 class Monster(turtle.Turtle):
@@ -42,8 +42,14 @@ class Monster(turtle.Turtle):
             self.sety(-290)
             self.rt(60)
 
-
-
+    def touch(self, other):
+        if ((self.xcor() >= other.xcor() - 20) and
+                (self.xcor() <= other.xcor() + 20) and
+                (self.ycor() >= other.ycor() - 20) and
+                (self.ycor() <= other.ycor() + 20)):
+            return True
+        else:
+            return False;
 
 
 class Player(Monster):
@@ -64,6 +70,14 @@ class Player(Monster):
 
     def slow_down(self):
         self.speed -= 1
+
+
+# probably need a better name
+class BadMonster(Monster):
+    def __init__(self, monster_shape, color, init_x, init_y):
+        Monster.__init__(self, monster_shape, color, init_x, init_y)
+        self.speed = 5
+        self.setheading(random.randint(0, 360))
 
 
 class Game():
@@ -93,9 +107,11 @@ game = Game()
 # draw border of the game
 game.draw_border()
 
-
 # Create my Player
 player = Player("triangle", "red", 0, 0)
+
+# Create my Bad Monster
+bm = BadMonster("square", "green", -100, 200)
 
 # Keyboard bindings
 # !!! no () after turn_left !!!
@@ -110,9 +126,11 @@ turtle.listen()
 while True:
     # Player is a child of Monster, so player can move
     player.move()
+    bm.move()
 
+    # check collision
+    if (player.touch(bm)):
+        bm.setpos(random.randint(0,300), random.randint(0,300))
 
 # show until user press enter
 delay = input("Press enter to quit")
-
-
