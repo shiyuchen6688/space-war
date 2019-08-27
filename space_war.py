@@ -110,6 +110,33 @@ class BadMonster(Monster):
         self.setheading(random.randint(0, 360))
 
 
+class GoodMonster(Monster):
+    def __init__(self, monster_shape, color, init_x, init_y):
+        Monster.__init__(self, monster_shape, color, init_x, init_y)
+        self.speed = 5
+        self.setheading(random.randint(0, 360))
+
+    # Override move method in GoodMonster class
+    def move(self):
+        self.fd(self.speed)
+
+        # Only inside boundary
+        # width of screen 700, border from -300 to 300
+        if self.xcor() > 290:
+            # just to make sure it does not go off the border
+            self.setx(290)
+            self.lt(60)
+        if self.xcor() < -290:
+            self.setx(-290)
+            self.lt(60)
+        if self.ycor() > 290:
+            self.sety(290)
+            self.lt(60)
+        if self.ycor() < -290:
+            self.sety(-290)
+            self.lt(60)
+
+
 class Game():
     def __init__(self):
         self.level = 1
@@ -144,6 +171,8 @@ weapon = Weapon("circle", "yellow", 0, 0)
 
 # Create my Bad Monster
 bm = BadMonster("square", "green", -100, 200)
+# Create my Good Monster
+gm = GoodMonster("square", "orange", -100, 200)
 
 # Keyboard bindings
 # !!! no () after turn_left !!!
@@ -156,22 +185,30 @@ turtle.onkey(weapon.fire, "space")
 # after create binding, we need to tell turtle to listen
 turtle.listen()
 
-# Main Game
+# Game Loop
 while True:
     # Player is a child of Monster, so player can move
     player.move()
-    bm.move()
     weapon.move()
+    bm.move()
+    gm.move()
 
-    # check if player touched enemy
+    # check if player touched bad monster
     if (player.touch(bm)):
         bm.setpos(random.randint(0, 300), random.randint(0, 300))
 
-    # check if weapon hit enemy
+    # check if weapon hit bad monster
     if (weapon.touch(bm)):
-        bm.setpos(random.randint(0, 300), random.randint(0, 300))
+        bm.setpos(random.randint(-280, 280), random.randint(-280, 280))
         weapon.status = "ready"
         game.score += 1
+
+    # check if weapon hit good monster
+    if (weapon.touch(gm)):
+        gm.setpos(random.randint(-280, 280), random.randint(-280, 280))
+        weapon.status = "ready"
+        game.score -= 1
+
 
 
 # show until user press enter
