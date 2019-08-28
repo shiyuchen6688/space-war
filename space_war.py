@@ -2,6 +2,7 @@ import turtle
 import os
 import random
 import time
+import playsound
 
 turtle.fd(0)
 # no animation, just draw it immediatly
@@ -10,6 +11,8 @@ turtle.speed(0)
 turtle.bgcolor("black")
 turtle.bgpic("background.gif")
 turtle.title("Very Fun Space War")
+# play music in the background
+os.system("afplay background_music.wav&")
 # hide default turtle
 turtle.ht()
 turtle.setundobuffer(1)
@@ -176,11 +179,15 @@ class Game():
 
     def game_status(self):
         self.pen.undo()
+        self.level_up()
         msg = "Level = " + str(self.level) + " " + \
               "Score = " + str(self.score)
         self.pen.penup()
         self.pen.goto(-300, 310)
         self.pen.write(msg, font=("Arial", 16, "normal"))
+
+    def level_up(self):
+        self.level = self.score // 20
 
 
 # Create my Game
