@@ -1,6 +1,7 @@
 import turtle
 import os
 import random
+import time
 
 turtle.fd(0)
 # no animation, just draw it immediatly
@@ -9,7 +10,9 @@ turtle.bgcolor("black")
 # hide default turtle
 turtle.ht()
 turtle.setundobuffer(1)
-turtle.tracer(1)
+# how many time you want to update your screen
+# seted to no auto update now
+turtle.tracer(0)
 
 
 # Monster class
@@ -188,10 +191,17 @@ player = Player("triangle", "red", 0, 0)
 # Create weapon for player
 weapon = Weapon("circle", "yellow", 0, 0)
 
-# Create my Bad Monster
-bm = BadMonster("square", "green", -100, 200)
-# Create my Good Monster
-gm = GoodMonster("square", "orange", -100, 200)
+# Create my Bad Monster(s)
+# bm = BadMonster("square", "green", -100, 200)
+bad_monsters = []
+for _ in range(5):
+    bad_monsters.append(BadMonster("square", "green", -100, 200))
+
+# Create my Good Monster(s)
+#gm = GoodMonster("square", "orange", -100, 200)
+good_monsters = []
+for _ in range(3):
+    good_monsters.append(GoodMonster("square", "orange", -100, 200))
 
 # Keyboard bindings
 # !!! no () after turn_left !!!
@@ -206,32 +216,40 @@ turtle.listen()
 
 # Game Loop
 while True:
+    # update screen in game loop, after each round of calculation
+    turtle.update()
+    time.sleep(0.02)
+
     # Player is a child of Monster, so player can move
     player.move()
     weapon.move()
-    bm.move()
-    gm.move()
+    for bm in bad_monsters:
+        bm.move()
+        # check if player touched bad monster
+        if (player.touch(bm)):
+            bm.setpos(random.randint(0, 300), random.randint(0, 300))
+            game.score -= 10
+            game.game_status()
+        # check if weapon hit bad monster
+        if (weapon.touch(bm)):
+            bm.setpos(random.randint(-280, 280), random.randint(-280, 280))
+            weapon.status = "ready"
+            game.score += 10
+            game.game_status()
+
+    for gm in good_monsters:
+        gm.move()
+        # check if weapon hit good monster
+        if (weapon.touch(gm)):
+            gm.setpos(random.randint(-280, 280), random.randint(-280, 280))
+            weapon.status = "ready"
+            game.score -= 5
+            game.game_status()
 
 
-    # check if player touched bad monster
-    if (player.touch(bm)):
-        bm.setpos(random.randint(0, 300), random.randint(0, 300))
-        game.score -= 10
-        game.game_status()
 
-    # check if weapon hit bad monster
-    if (weapon.touch(bm)):
-        bm.setpos(random.randint(-280, 280), random.randint(-280, 280))
-        weapon.status = "ready"
-        game.score += 10
-        game.game_status()
 
-    # check if weapon hit good monster
-    if (weapon.touch(gm)):
-        gm.setpos(random.randint(-280, 280), random.randint(-280, 280))
-        weapon.status = "ready"
-        game.score -= 5
-        game.game_status()
+
 
 # show until user press enter
 delay = input("Press enter to quit")
