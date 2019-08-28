@@ -48,6 +48,8 @@ class Monster(turtle.Turtle):
                 (self.xcor() <= other.xcor() + 20) and
                 (self.ycor() >= other.ycor() - 20) and
                 (self.ycor() <= other.ycor() + 20)):
+            # play explosion sound when Mosnters touch each other
+            os.system("afplay explosion.wav&")
             return True
         else:
             return False;
@@ -84,6 +86,10 @@ class Weapon(Monster):
 
     def fire(self):
         if self.status == "ready":
+            # play sound fire when fire a weapon
+            # for some reason .mp3 do not work all the time, prefer .wav
+            # add & so that game won't pause when sound is playing, sound will play in background
+            os.system("afplay fire.wav&")
             # when fire, set pos and dir of weapon to player's
             self.goto(player.xcor(), player.ycor())
             self.setheading(player.heading())
@@ -157,12 +163,25 @@ class Game():
             self.pen.lt(90)
         self.pen.penup()
         self.pen.ht()
+        # when calling game_status the first time after draw_border, need to give it something to undo
+        self.pen.pendown()
+
+    def game_status(self):
+        self.pen.undo()
+        msg = "Level = " + str(self.level) + " " + \
+              "Score = " + str(self.score)
+        self.pen.penup()
+        self.pen.goto(-300, 310)
+        self.pen.write(msg, font=("Arial", 16, "normal"))
 
 
 # Create my Game
 game = Game()
 # draw border of the game
 game.draw_border()
+# show game status
+game.game_status()
+
 
 # Create my Player
 player = Player("triangle", "red", 0, 0)
@@ -193,23 +212,26 @@ while True:
     bm.move()
     gm.move()
 
+
     # check if player touched bad monster
     if (player.touch(bm)):
         bm.setpos(random.randint(0, 300), random.randint(0, 300))
+        game.score -= 10
+        game.game_status()
 
     # check if weapon hit bad monster
     if (weapon.touch(bm)):
         bm.setpos(random.randint(-280, 280), random.randint(-280, 280))
         weapon.status = "ready"
-        game.score += 1
+        game.score += 10
+        game.game_status()
 
     # check if weapon hit good monster
     if (weapon.touch(gm)):
         gm.setpos(random.randint(-280, 280), random.randint(-280, 280))
         weapon.status = "ready"
-        game.score -= 1
-
-
+        game.score -= 5
+        game.game_status()
 
 # show until user press enter
 delay = input("Press enter to quit")
