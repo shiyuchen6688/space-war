@@ -6,7 +6,10 @@ import time
 turtle.fd(0)
 # no animation, just draw it immediatly
 turtle.speed(0)
+# setup background and title
 turtle.bgcolor("black")
+turtle.bgpic("background.gif")
+turtle.title("Very Fun Space War")
 # hide default turtle
 turtle.ht()
 turtle.setundobuffer(1)
@@ -64,6 +67,8 @@ class Player(Monster):
         self.speed = 4
         # Only player have lives, monster does not
         self.lives = 3
+        # make player thinner and longer
+        self.shapesize(0.6, 1.5, None)
 
     def turn_left(self):
         self.lt(45)
