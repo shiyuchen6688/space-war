@@ -2,7 +2,6 @@ import turtle
 import os
 import random
 import time
-import playsound
 
 turtle.fd(0)
 # no animation, just draw it immediatly
@@ -68,8 +67,6 @@ class Player(Monster):
     def __init__(self, monster_shape, color, init_x, init_y):
         Monster.__init__(self, monster_shape, color, init_x, init_y)
         self.speed = 4
-        # Only player have lives, monster does not
-        self.lives = 3
         # make player thinner and longer
         self.shapesize(0.6, 1.5, None)
 
@@ -179,15 +176,30 @@ class Game():
 
     def game_status(self):
         self.pen.undo()
-        self.level_up()
         msg = "Level = " + str(self.level) + " " + \
               "Score = " + str(self.score)
         self.pen.penup()
         self.pen.goto(-300, 310)
         self.pen.write(msg, font=("Arial", 16, "normal"))
 
-    def level_up(self):
+    # TODO update level and notify when up and down level
+    def update_level(self):
+        self.pen.undo()
+        init_level = self.level
         self.level = self.score // 20
+        if init_level != self.level:
+            if init_level < self.level:
+                msg = "Great! Level up. from " + str(init_level) + " to " + str(self.level)
+            elif init_level > self.level:
+                msg = "Not That Great! Level down. from " + str(init_level) + " to " + str(self.level)
+                self.pen.goto(0, 0)
+            self.pen.penup()
+            self.pen.write(msg, font=("Arial", 16, "normal"))
+
+    # TODO: add win and lost
+    # def check_lost_or_win(self):
+    #     if (self.level > 10):
+    #         self.pen
 
 
 # Create my Game
@@ -242,12 +254,14 @@ while True:
             bm.setpos(random.randint(0, 300), random.randint(0, 300))
             game.score -= 10
             game.game_status()
+            # game.update_level()
         # check if weapon hit bad monster
         if (weapon.touch(bm)):
             bm.setpos(random.randint(-280, 280), random.randint(-280, 280))
             weapon.status = "ready"
             game.score += 10
             game.game_status()
+            # game.update_level()
 
     for gm in good_monsters:
         gm.move()
@@ -257,6 +271,7 @@ while True:
             weapon.status = "ready"
             game.score -= 5
             game.game_status()
+            # game.update_level()
 
 
 
